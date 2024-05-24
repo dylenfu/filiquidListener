@@ -7,7 +7,7 @@ import (
 )
 
 type WithdrawFig struct {
-	Id        string `gorm:"uniqueIndex"`
+	Id        string `gorm:"index"`
 	Staker    string `gorm:"index"`
 	Amount    string
 	TimeStamp uint64
