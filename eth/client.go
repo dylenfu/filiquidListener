@@ -32,6 +32,7 @@ const (
 	eventStaked                 = "Staked"
 	eventUnstaked               = "Unstaked"
 	eventWithdrawnFig           = "WithdrawnFig"
+	eventWithdrawnFig2          = "WithdrawnFIG"
 	eventProposed               = "Proposed"
 	eventBonded                 = "Bonded"
 	eventUnbonded               = "Unbonded"

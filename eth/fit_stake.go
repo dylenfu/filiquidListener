@@ -40,7 +40,7 @@ func (s *EClient) handleFitStakeEvent(name string, vlog types.Log) (any, error) 
 
 		return unstaked, s.dao.InsertUnstake(data)
 
-	case eventWithdrawnFig:
+	case eventWithdrawnFig, eventWithdrawnFig2:
 		raw, err := s.fitFilter.ParseWithdrawnFIG(vlog)
 		if err != nil {
 			return nil, err
