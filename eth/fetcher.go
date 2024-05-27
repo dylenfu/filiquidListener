@@ -37,24 +37,6 @@ func (c *EClient) FetchAndSaveFamilies() error {
 	return nil
 }
 
-// func (c *EClient) FetchBackendDataLoop(lastHeight uint64) {
-// 	for {
-// 		c.FetchBackendData(lastHeight)
-// 		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
-// 		lastHeight += 1
-// 	}
-// }
-
-// // fetch contiuniously once failed, todo(xk): process error
-// func (c *EClient) FetchandSaveFamilesLoop() {
-// 	for {
-// 		if err := c.FetchAndSaveFamilies(); err != nil {
-// 			log.Printf("FetchandSaveFamilesLoop fetch failed, err: %v\r\n", err)
-// 		}
-// 		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
-// 	}
-// }
-
 func (c *EClient) FetchBackendData(height uint64) error {
 	rBasic, err := c.fetcher.FetchData(&bind.CallOpts{
 		BlockNumber: new(big.Int).SetUint64(height),
@@ -64,8 +46,8 @@ func (c *EClient) FetchBackendData(height uint64) error {
 		return err
 	}
 	log.Printf("ETH Client Get height: %d", rBasic.BlockHeight.Uint64())
-	dBasic := new(dao.BasicData).Up(&rBasic)
-	if err := c.dao.InsertBasic(dBasic); err != nil {
+	basic := new(dao.BasicData).Up(&rBasic)
+	if err := c.dao.InsertBasic(basic); err != nil {
 		log.Printf("Insert basic data failed, err: %v", err)
 		return err
 	}

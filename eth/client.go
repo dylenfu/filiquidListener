@@ -1,6 +1,7 @@
 package eth
 
 import (
+	"context"
 	"errors"
 	"log"
 	"time"
@@ -145,8 +146,6 @@ func (c *EClient) Close() {
 	c.client.Close()
 }
 
-// todo: set last height before running
-// todo: running then sleep
 func (s *EClient) FetchandSaveDataLoop() {
 	ticker := time.NewTicker(time.Second * time.Duration(config.Conf.FetchDuration))
 	for {
@@ -160,14 +159,42 @@ func (s *EClient) FetchandSaveDataLoop() {
 }
 
 func (s *EClient) fetchAndSaveData() {
-	_, start, end, err := s.getScanRange()
+	var start, end uint64
+	current, err := s.client.BlockNumber(context.Background())
 	if err != nil {
-		log.Println(err)
-	}
-	log.Printf("start: %d, end: %d\n", start, end)
-	if end-start < uint64(1) {
+		log.Printf("client.BlockNumber failed, err: %v", err)
 		return
 	}
+	last := s.cache.GetLastHeight()
+
+	if last < current {
+		start = last + 1
+	} else {
+		return
+	}
+
+	if s.forceHeight == 0 {
+	} else if s.forceHeight <= start {
+		log.Fatalf("forceHeight %d  < lower %d", s.forceHeight, start)
+		return
+	} else if s.forceHeight > current {
+		log.Fatalf("forceHeight %d > current %d", s.forceHeight, current)
+		return
+	} else {
+		start = s.forceHeight
+		s.forceHeight = 0
+	}
+
+	end = current
+	if start > end {
+		log.Fatalf("lower %d > higher %d", start, end)
+		return
+	}
+	if start < end-uint64(config.Conf.BlockScanRange) {
+		end = start + uint64(config.Conf.BlockScanRange)
+	}
+
+	log.Printf("start: %d, end: %d\n", start, end)
 
 	for height := start; height <= end; height++ {
 		s.handleSingleBlock(height)
@@ -193,10 +220,10 @@ func (s *EClient) handleSingleBlock(height uint64) {
 
 	if err := s.dao.UpdateLastHeight(height); err != nil {
 		log.Printf("UpdateLastHeight failed, err: %v", err)
-	} else {
-		s.cache.SetLastHeight(height)
-		log.Printf("UpdateLastHeight %d", height)
 	}
+	s.cache.SetLastHeight(height)
+	log.Printf("UpdateLastHeight %d", height)
+
 	s.cache.SetCurrentHeight(height)
 }
 

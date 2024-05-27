@@ -45,7 +45,23 @@ func (s *Listener) Migrate() {
 }
 
 func (s *Listener) Run(forceHeight uint64) {
+	s.prepare()
 
+	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
+		log.Fatal(err)
+	}
+	if err := s.eth.FetchAndSaveFamilies(); err != nil {
+		log.Fatal(err)
+	}
+	if forceHeight > 0 {
+		s.eth.SetForceHeight(forceHeight)
+	}
+
+	go s.rpc.ServerThread()
+	go s.eth.FetchandSaveDataLoop()
+}
+
+func (s *Listener) prepare() {
 	lastHeight, err := s.dao.GetLastHeight()
 	if err != nil {
 		log.Fatal(err)
@@ -60,19 +76,6 @@ func (s *Listener) Run(forceHeight uint64) {
 
 	s.cache.SetLastHeight(lastHeight)
 	s.cache.SetCurrentHeight(currentHeight)
-
-	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
-		log.Fatal(err)
-	}
-	if err := s.eth.FetchAndSaveFamilies(); err != nil {
-		log.Fatal(err)
-	}
-	if forceHeight > 0 {
-		s.eth.SetForceHeight(forceHeight)
-	}
-
-	go s.rpc.ServerThread()
-	go s.eth.FetchandSaveDataLoop()
 }
 
 func (s *Listener) Close() {
