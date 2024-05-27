@@ -12,6 +12,7 @@ import (
 	"github.com/filiquid/listener/cache"
 	"github.com/filiquid/listener/config"
 	"github.com/filiquid/listener/dao"
+	"github.com/filiquid/listener/eth/abi/fetcher"
 	"github.com/filiquid/listener/eth/abi/fitstake"
 	"github.com/filiquid/listener/eth/abi/governance"
 	"github.com/filiquid/listener/eth/abi/liquid"
@@ -70,6 +71,8 @@ type EClient struct {
 	liquidHandler     eventHandler
 	governanceHandler eventHandler
 	fitstakeHandler   eventHandler
+
+	fetcher *fetcher.DataCaller
 }
 
 func NewETHClient(cache *cache.CacheData, dao *dao.Dao, cfg *config.EClient) (*EClient, error) {
@@ -121,6 +124,10 @@ func (s *EClient) setHandler() {
 	s.liquidHandler = s.handleLiquidEvent
 	s.governanceHandler = s.handleGovernanceEvent
 	s.fitstakeHandler = s.handleFitStakeEvent
+}
+
+func (s *EClient) setFetcher() {
+	fetcher.NewDataCaller()
 }
 
 func (s *EClient) SetForceHeight(height uint64) {

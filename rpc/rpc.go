@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -21,6 +22,12 @@ const (
 	FUNC_GETWITHDRAWNFIGS         = "getWithdrawnFigs"
 	FUNC_GETPROPOSALS             = "getProposals"
 	FUNC_GETVOTES                 = "getVotes"
+
+	//Panel data API
+	FUNCGETDATABASIC  = "getbasic"
+	FUNCGETDATASENIOR = "getsenior"
+	FUNCGETDATAPANEL  = "getpanel"
+	FUNCGETFAMILIES   = "getfamilies"
 )
 
 const (
@@ -55,6 +62,10 @@ func (s *RPCServer) ServerThread() {
 	mux.HandleFunc("/"+FUNC_GETWITHDRAWNFIGS, s.getWithdrawnFig)
 	mux.HandleFunc("/"+FUNC_GETPROPOSALS, s.getProposals)
 	mux.HandleFunc("/"+FUNC_GETVOTES, s.getVotes)
+	mux.HandleFunc("/"+FUNCGETDATABASIC, s.getCachedDataBasic)
+	mux.HandleFunc("/"+FUNCGETDATASENIOR, s.getCachedDataSenior)
+	mux.HandleFunc("/"+FUNCGETDATAPANEL, s.getCachedDataPanel)
+	mux.HandleFunc("/"+FUNCGETFAMILIES, s.getCachedFamilies)
 
 	if err := http.ListenAndServe(":"+s.port, mux); err != nil {
 		log.Fatalf("unable to start server: %s", err.Error())
@@ -196,6 +207,52 @@ func (s *RPCServer) getVotes(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.WriteHeader(http.StatusOK)
 			w.Write(toJson(result))
+		}
+	}
+}
+
+func (s *RPCServer) getCachedDataBasic(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		fmt.Println("------xxx  getintp getbasic")
+		s.writeHeader(w, http.StatusOK)
+
+		basicData, _, _ := s.cache.GetBasicSeniorPanel()
+		if basicData != nil {
+			w.Write(basicData)
+		} else {
+			fmt.Println("------xxxxxx777 no data")
+		}
+	}
+}
+
+func (s *RPCServer) getCachedDataSenior(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		s.writeHeader(w, http.StatusOK)
+
+		_, seniorData, _ := s.cache.GetBasicSeniorPanel()
+		if seniorData != nil {
+			w.Write(seniorData)
+		}
+	}
+}
+
+func (s *RPCServer) getCachedDataPanel(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		s.writeHeader(w, http.StatusOK)
+
+		_, _, panelData := s.cache.GetBasicSeniorPanel()
+		if panelData != nil {
+			w.Write(panelData)
+		}
+	}
+}
+
+func (s *RPCServer) getCachedFamilies(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		s.writeHeader(w, http.StatusOK)
+
+		if data := s.cache.GetFamilies(); data != nil {
+			w.Write(data)
 		}
 	}
 }

@@ -73,6 +73,30 @@ func (s *Listener) Run(forceHeight uint64) {
 	go s.eth.FetchandSaveDataLoop()
 }
 
+/*
+	func (s *BOServer) Run(forceHeight uint64) {
+		lastHeight, err := s.dao.GetLatestBlockHeight()
+		if err != nil {
+			log.Fatalf("fetch latest blcok heigh failed, err:%v", err)
+		}
+
+		// 初始运行时，以及后续需要回退一定距离时可以强行设置lastHeight
+		if forceHeight > 0 && (lastHeight == 0 || (lastHeight > 0 && forceHeight < lastHeight)) {
+			lastHeight = forceHeight
+		}
+		log.Printf("LastHeight %v", lastHeight)
+		// cache global state info
+		if err := s.ethcli.FetchAndSaveFamilies(); err != nil {
+			log.Fatalf("fetch and save families failed, err: %v", err)
+		}
+
+		s.cache.FetchAndSaveBasicSeniorData()
+		fmt.Println("fetched basic senior data")
+		go s.rpc.Run()
+		go s.ethcli.FetchandSaveFamilesLoop()
+		go s.ethcli.FetchandSaveDataLoop(lastHeight)
+	}
+*/
 func (s *Listener) Close() {
 	s.eth.Close()
 	s.rpc.Close()
