@@ -1,30 +1,31 @@
 package eth
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"math/big"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/filiquid/listener/config"
 	"github.com/filiquid/listener/dao"
+	"github.com/filiquid/listener/utils"
 )
 
 // todo
 func (c *EClient) getFamilies() ([]byte, error) {
-	return nil, nil
-	// list, err := utils.GetUsers(c.cfg.FamiliesUrl)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	raw := c.cache.GetFamilies()
+	var list []common.Address
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return nil, err
+	}
 
-	// raw, err := c.fetcher.GetBatchedUserBorrows(nil, list)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	info, err := c.fetcher.GetBatchedUserBorrows(nil, list)
+	if err != nil {
+		return nil, err
+	}
 
-	// return utils.ToJson(raw), nil
+	return utils.ToJson(info)
 }
 
 func (c *EClient) FetchAndSaveFamilies() error {
@@ -36,26 +37,25 @@ func (c *EClient) FetchAndSaveFamilies() error {
 	return nil
 }
 
-func (c *EClient) FetchBackendDataLoop(lastHeight uint64) {
-	for {
-		c.FetchBackendData(lastHeight)
-		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
-		lastHeight += 1
-	}
-}
+// func (c *EClient) FetchBackendDataLoop(lastHeight uint64) {
+// 	for {
+// 		c.FetchBackendData(lastHeight)
+// 		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
+// 		lastHeight += 1
+// 	}
+// }
 
-// fetch contiuniously once failed, todo(xk): process error
-func (c *EClient) FetchandSaveFamilesLoop() {
-	for {
-		if err := c.FetchAndSaveFamilies(); err != nil {
-			log.Printf("FetchandSaveFamilesLoop fetch failed, err: %v\r\n", err)
-		}
-		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
-	}
-}
+// // fetch contiuniously once failed, todo(xk): process error
+// func (c *EClient) FetchandSaveFamilesLoop() {
+// 	for {
+// 		if err := c.FetchAndSaveFamilies(); err != nil {
+// 			log.Printf("FetchandSaveFamilesLoop fetch failed, err: %v\r\n", err)
+// 		}
+// 		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
+// 	}
+// }
 
 func (c *EClient) FetchBackendData(height uint64) error {
-	fmt.Println("----try to fetch onchain data", height)
 	rBasic, err := c.fetcher.FetchData(&bind.CallOpts{
 		BlockNumber: new(big.Int).SetUint64(height),
 	})

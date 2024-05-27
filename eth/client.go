@@ -92,6 +92,7 @@ func NewETHClient(cache *cache.CacheData, dao *dao.Dao, cfg *config.EClient) (*E
 	client.setFilter()
 	client.setABI()
 	client.setHandler()
+	client.setFetcher()
 	return client, nil
 }
 
@@ -159,7 +160,7 @@ func (s *EClient) FetchandSaveDataLoop() {
 }
 
 func (s *EClient) fetchAndSaveData() {
-	current, start, end, err := s.getScanRange()
+	_, start, end, err := s.getScanRange()
 	if err != nil {
 		log.Println(err)
 	}
@@ -168,25 +169,39 @@ func (s *EClient) fetchAndSaveData() {
 		return
 	}
 
-	s.cache.SetCurrentHeight(current)
-
-	s.handleSingleContrctEvents(contractLiquid, start, end)
-	s.handleSingleContrctEvents(contractGovernance, start, end)
-	s.handleSingleContrctEvents(contractFitstake, start, end)
-
-	if err := s.dao.UpdateLastHeight(end); err != nil {
-		log.Printf("UpdateLastHeight failed, err: %v", err)
-	} else {
-		s.cache.SetLastHeight(end)
-		log.Printf("UpdateLastHeight %d", end)
+	for height := start; height <= end; height++ {
+		s.handleSingleBlock(height)
 	}
+}
+
+func (s *EClient) handleSingleBlock(height uint64) {
+	s.handleSingleContrctEvents(contractLiquid, height)
+	s.handleSingleContrctEvents(contractGovernance, height)
+	s.handleSingleContrctEvents(contractFitstake, height)
 
 	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
 		log.Printf("FetchAndSaveBasicCache failed, err: %v", err)
 	}
+
+	if err := s.FetchBackendData(height); err != nil {
+		log.Printf("FetchBackendData failed, err: %v", err)
+	}
+
+	if err := s.FetchAndSaveFamilies(); err != nil {
+		log.Printf("FetchandSaveFamiles failed, err: %v", err)
+	}
+
+	if err := s.dao.UpdateLastHeight(height); err != nil {
+		log.Printf("UpdateLastHeight failed, err: %v", err)
+	} else {
+		s.cache.SetLastHeight(height)
+		log.Printf("UpdateLastHeight %d", height)
+	}
+	s.cache.SetCurrentHeight(height)
 }
 
-func (s *EClient) handleSingleContrctEvents(name string, start, end uint64) {
+func (s *EClient) handleSingleContrctEvents(name string, current uint64) {
+	start, end := current, current
 	contract, abi, handler := s.getHandler(name)
 	eventlogs := s.getLogs(start, end, contract)
 	for _, vlog := range eventlogs {

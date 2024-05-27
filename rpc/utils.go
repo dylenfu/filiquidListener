@@ -3,7 +3,9 @@ package rpc
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/filiquid/listener/config"
 	"github.com/filiquid/listener/dao"
@@ -190,4 +192,28 @@ func checkMode(mode string) bool {
 		return false
 	}
 	return true
+}
+
+func limitMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//enableCors(&w)
+		target := r.RemoteAddr
+		p := strings.LastIndex(target, ":")
+		if p >= 0 {
+			target = target[:p]
+		}
+		//log.Println("Visitor: ", target)
+		/*if target != "127.0.0.1" {
+			l := limiter.GetLimiter(target)
+			if !l.Allow() {
+				http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+				return
+			}
+		}*/
+		next.ServeHTTP(w, r)
+	})
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
