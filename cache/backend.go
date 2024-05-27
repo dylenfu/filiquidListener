@@ -171,7 +171,10 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	front.Senior3Month = senior3MonthList
 
 	bs, sn, pn := utils.DataStructFrontConvert(front)
-	c.SetBasicSeniorPanel(utils.ToJson(bs), utils.ToJson(sn), utils.ToJson(pn))
+	c.SetBasicSeniorPanel(
+		[]byte(utils.ToString(bs)),
+		[]byte(utils.ToString(sn)),
+		[]byte(utils.ToString(pn)))
 	return nil
 }
 

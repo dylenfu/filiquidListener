@@ -73,6 +73,7 @@ type EClient struct {
 	fitstakeHandler   eventHandler
 
 	fetcher *fetcher.DataCaller
+	ticker  int
 }
 
 func NewETHClient(cache *cache.CacheData, dao *dao.Dao, cfg *config.EClient) (*EClient, error) {
@@ -127,7 +128,11 @@ func (s *EClient) setHandler() {
 }
 
 func (s *EClient) setFetcher() {
-	fetcher.NewDataCaller()
+	fetcher, err := fetcher.NewDataCaller(s.cfg.FetcherAddr, s.client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s.fetcher = fetcher
 }
 
 func (s *EClient) SetForceHeight(height uint64) {

@@ -214,7 +214,7 @@ func (s *RPCServer) getVotes(w http.ResponseWriter, r *http.Request) {
 func (s *RPCServer) getCachedDataBasic(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		fmt.Println("------xxx  getintp getbasic")
-		s.writeHeader(w, http.StatusOK)
+		writeHeader(w)
 
 		basicData, _, _ := s.cache.GetBasicSeniorPanel()
 		if basicData != nil {
@@ -227,7 +227,7 @@ func (s *RPCServer) getCachedDataBasic(w http.ResponseWriter, r *http.Request) {
 
 func (s *RPCServer) getCachedDataSenior(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		s.writeHeader(w, http.StatusOK)
+		writeHeader(w)
 
 		_, seniorData, _ := s.cache.GetBasicSeniorPanel()
 		if seniorData != nil {
@@ -238,7 +238,7 @@ func (s *RPCServer) getCachedDataSenior(w http.ResponseWriter, r *http.Request) 
 
 func (s *RPCServer) getCachedDataPanel(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		s.writeHeader(w, http.StatusOK)
+		writeHeader(w)
 
 		_, _, panelData := s.cache.GetBasicSeniorPanel()
 		if panelData != nil {
@@ -249,7 +249,7 @@ func (s *RPCServer) getCachedDataPanel(w http.ResponseWriter, r *http.Request) {
 
 func (s *RPCServer) getCachedFamilies(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		s.writeHeader(w, http.StatusOK)
+		writeHeader(w)
 
 		if data := s.cache.GetFamilies(); data != nil {
 			w.Write(data)

@@ -9,21 +9,22 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/filiquid/listener/config"
 	"github.com/filiquid/listener/dao"
-	"github.com/filiquid/listener/utils"
 )
 
+// todo
 func (c *EClient) getFamilies() ([]byte, error) {
-	list, err := utils.GetUsers(c.cfg.FamiliesUrl)
-	if err != nil {
-		return nil, err
-	}
+	return nil, nil
+	// list, err := utils.GetUsers(c.cfg.FamiliesUrl)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	raw, err := c.fetcher.GetBatchedUserBorrows(nil, list)
-	if err != nil {
-		return nil, err
-	}
+	// raw, err := c.fetcher.GetBatchedUserBorrows(nil, list)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	return utils.ToJson(raw), nil
+	// return utils.ToJson(raw), nil
 }
 
 func (c *EClient) FetchAndSaveFamilies() error {
@@ -35,9 +36,9 @@ func (c *EClient) FetchAndSaveFamilies() error {
 	return nil
 }
 
-func (c *EClient) FetchandSaveDataLoop(lastHeight uint64) {
+func (c *EClient) FetchBackendDataLoop(lastHeight uint64) {
 	for {
-		c.FetchandSaveData(lastHeight)
+		c.FetchBackendData(lastHeight)
 		<-time.After(time.Second * config.SECONDSBETWEENFETCH)
 		lastHeight += 1
 	}
@@ -53,9 +54,9 @@ func (c *EClient) FetchandSaveFamilesLoop() {
 	}
 }
 
-func (c *EClient) FetchandSaveData(height uint64) error {
+func (c *EClient) FetchBackendData(height uint64) error {
 	fmt.Println("----try to fetch onchain data", height)
-	rBasic, err := c.caller.FetchData(&bind.CallOpts{
+	rBasic, err := c.fetcher.FetchData(&bind.CallOpts{
 		BlockNumber: new(big.Int).SetUint64(height),
 	})
 	if err != nil {
@@ -70,7 +71,7 @@ func (c *EClient) FetchandSaveData(height uint64) error {
 	}
 
 	if c.ticker == 0 {
-		response, err := c.caller.GetTotalPendingInterest(nil)
+		response, err := c.fetcher.GetTotalPendingInterest(nil)
 		if err != nil {
 			log.Printf("Get total pending intersest failed, err: %v", err)
 			return err
