@@ -10,6 +10,20 @@ import (
 
 const (
 	CALIBRATION_GENESIS_UNIX_EPOCH = 1667326380
+
+	FETCHDATAINTERVAL  = 5
+	MAXIMUMRESULTS     = 100
+	APYTHRESHOLD       = 50
+	BLOCKSPERYEAR      = 1036800
+	MAXNOTICELENGTH    = 10000
+	MAXBANNERLENGTH    = 10000
+	RATEBASE           = 1000000
+	U_M                = 0.9
+	DAY1               = 24 * 60 * 60
+	DAY7               = DAY1 * 7
+	MONTH              = DAY1 * 30
+	MONTH3             = MONTH * 3
+	RPCQUERYREPEATTIME = 6
 )
 
 var Conf *Config
@@ -32,13 +46,11 @@ type DbConfig struct {
 }
 
 type EClient struct {
-	RPCUrl            string
-	FiliquidAddr      common.Address
-	GovernanceAddr    common.Address
-	FitStakeAddr      common.Address
-	FiliquidABIPath   string
-	GovernanceABIPath string
-	FitStakeABIPath   string
+	RPCUrl         string
+	FetcherAddr    common.Address
+	FiliquidAddr   common.Address
+	GovernanceAddr common.Address
+	FitStakeAddr   common.Address
 }
 
 func Setting(path string) {

@@ -7,14 +7,14 @@ import (
 )
 
 type WithdrawFig struct {
-	Id        string
+	StakeId   string `gorm:"index"`
 	Staker    string `gorm:"index"`
 	Amount    string
 	TimeStamp uint64
 }
 
 func (w *WithdrawFig) Up(raw *model.WithdrawnFig) *WithdrawFig {
-	w.Id = raw.Id.String()
+	w.StakeId = raw.Id.String()
 	w.Amount = raw.Amount.String()
 	w.Staker = raw.Staker.Hex()
 	w.TimeStamp = raw.Timestamp
@@ -24,7 +24,7 @@ func (w *WithdrawFig) Up(raw *model.WithdrawnFig) *WithdrawFig {
 func (w *WithdrawFig) Down() *model.WithdrawnFigData {
 	d := new(model.WithdrawnFigData)
 	d.Amount = w.Amount
-	d.Id = w.Id
+	d.Id = w.StakeId
 	d.Timestamp = fmt.Sprintf("%d", w.TimeStamp)
 	return d
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type UnStake struct {
-	Id        string `gorm:"uniqueIndex"`
+	StakeId   string `gorm:"index"`
 	Staker    string `gorm:"index"`
 	Amount    string
 	Start     uint64
@@ -18,7 +18,7 @@ type UnStake struct {
 }
 
 func (s *UnStake) Up(raw *model.Unstaked) *UnStake {
-	s.Id = raw.Id.String()
+	s.StakeId = raw.Id.String()
 	s.TimeStamp = raw.Timestamp
 	s.Staker = raw.Staker.Hex()
 	s.Amount = raw.Amount.String()
@@ -31,7 +31,7 @@ func (s *UnStake) Up(raw *model.Unstaked) *UnStake {
 
 func (s *UnStake) Down() *model.UnstakedData {
 	d := new(model.UnstakedData)
-	d.Id = s.Id
+	d.Id = s.StakeId
 	d.Timestamp = fmt.Sprintf("%d", s.TimeStamp)
 	d.Amount = s.Amount
 	d.Start = fmt.Sprintf("%d", s.Start)

@@ -12,15 +12,19 @@ import (
 )
 
 const (
-	FUNC_GETFAMILYCOUNT           = "getFamilyCount"
-	FUNC_GETFAMILYAMOUNT          = "getFamilyAmount"
-	FUNC_GETDISTINCTSTAKERSAMOUNT = "getDistinctStakersAmount"
-	FUNC_GETINTERESTS             = "getInterests"
-	FUNC_GETSTAKES                = "getStakes"
-	FUNC_GETUNSTAKES              = "getUnstakes"
-	FUNC_GETWITHDRAWNFIGS         = "getWithdrawnFigs"
-	FUNC_GETPROPOSALS             = "getProposals"
-	FUNC_GETVOTES                 = "getVotes"
+	FnGetFamilyCount           = "getFamilyCount"
+	FnGetFamilyAmount          = "getFamilyAmount"
+	FnGetDistinctStakersAmount = "getDistinctStakersAmount"
+	FnGetInterests             = "getInterests"
+	FnGetStakes                = "getStakes"
+	FnGetUnstakes              = "getUnstakes"
+	FnGetWithdrawFigs          = "getWithdrawnFigs"
+	FnGetProposals             = "getProposals"
+	FnGetVotes                 = "getVotes"
+	FnGetBasicData             = "getBasic"
+	FnGetSeniorData            = "getSenior"
+	FnGetPanel                 = "getPanel"
+	FnGetFamilies              = "getFamilies"
 )
 
 const (
@@ -46,15 +50,19 @@ func NewRPCServer(port string, dao *dao.Dao, cache *cache.CacheData) *RPCServer 
 
 func (s *RPCServer) ServerThread() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/"+FUNC_GETFAMILYCOUNT, s.getFamilyList)
-	mux.HandleFunc("/"+FUNC_GETFAMILYAMOUNT, s.getFamilyAmount)
-	mux.HandleFunc("/"+FUNC_GETDISTINCTSTAKERSAMOUNT, s.getDistinctStakersAmount)
-	mux.HandleFunc("/"+FUNC_GETINTERESTS, s.getInterest)
-	mux.HandleFunc("/"+FUNC_GETSTAKES, s.getStaked)
-	mux.HandleFunc("/"+FUNC_GETUNSTAKES, s.getUnstaked)
-	mux.HandleFunc("/"+FUNC_GETWITHDRAWNFIGS, s.getWithdrawnFig)
-	mux.HandleFunc("/"+FUNC_GETPROPOSALS, s.getProposals)
-	mux.HandleFunc("/"+FUNC_GETVOTES, s.getVotes)
+	mux.HandleFunc("/"+FnGetFamilyCount, s.getFamilyList)
+	mux.HandleFunc("/"+FnGetFamilyAmount, s.getFamilyAmount)
+	mux.HandleFunc("/"+FnGetDistinctStakersAmount, s.getDistinctStakersAmount)
+	mux.HandleFunc("/"+FnGetInterests, s.getInterest)
+	mux.HandleFunc("/"+FnGetStakes, s.getStaked)
+	mux.HandleFunc("/"+FnGetUnstakes, s.getUnstaked)
+	mux.HandleFunc("/"+FnGetWithdrawFigs, s.getWithdrawnFig)
+	mux.HandleFunc("/"+FnGetProposals, s.getProposals)
+	mux.HandleFunc("/"+FnGetVotes, s.getVotes)
+	mux.HandleFunc("/"+FnGetBasicData, s.getCachedDataBasic)
+	mux.HandleFunc("/"+FnGetSeniorData, s.getCachedDataSenior)
+	mux.HandleFunc("/"+FnGetPanel, s.getCachedDataPanel)
+	mux.HandleFunc("/"+FnGetFamilies, s.getCachedFamilies)
 
 	if err := http.ListenAndServe(":"+s.port, mux); err != nil {
 		log.Fatalf("unable to start server: %s", err.Error())
@@ -200,33 +208,54 @@ func (s *RPCServer) getVotes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *RPCServer) getCachedDataBasic(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		writeHeader(w)
+
+		basicData, _, _ := s.cache.GetBasicSeniorPanel()
+		if basicData != nil {
+			w.Write(basicData)
+		}
+	}
+}
+
+func (s *RPCServer) getCachedDataSenior(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		writeHeader(w)
+
+		_, seniorData, _ := s.cache.GetBasicSeniorPanel()
+		if seniorData != nil {
+			w.Write(seniorData)
+		}
+	}
+}
+
+func (s *RPCServer) getCachedDataPanel(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		writeHeader(w)
+
+		_, _, panelData := s.cache.GetBasicSeniorPanel()
+		if panelData != nil {
+			w.Write(panelData)
+		}
+	}
+}
+
+func (s *RPCServer) getCachedFamilies(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		writeHeader(w)
+
+		if data := s.cache.GetFamilies(); data != nil {
+			w.Write(data)
+		} else {
+			log.Printf("GetFamilies is nil")
+		}
+	}
+}
+
 func writeHeader(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-}
-
-func limitMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//enableCors(&w)
-		target := r.RemoteAddr
-		p := strings.LastIndex(target, ":")
-		if p >= 0 {
-			target = target[:p]
-		}
-		//log.Println("Visitor: ", target)
-		/*if target != "127.0.0.1" {
-			l := limiter.GetLimiter(target)
-			if !l.Allow() {
-				http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
-				return
-			}
-		}*/
-		next.ServeHTTP(w, r)
-	})
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
 func toJson(data any) []byte {

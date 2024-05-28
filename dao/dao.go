@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrNoRecord = gorm.ErrRecordNotFound
+
 type Dao struct {
 	db *gorm.DB
 }
@@ -54,4 +56,6 @@ func (d *Dao) Migrate() {
 	d.db.AutoMigrate(&WithdrawFig{})
 	d.db.AutoMigrate(&Proposal{})
 	d.db.AutoMigrate(&Vote{})
+	d.db.AutoMigrate(&BasicData{})
+	d.db.AutoMigrate(&SeniorData{})
 }

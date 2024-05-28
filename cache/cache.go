@@ -12,6 +12,11 @@ import (
 
 // todo: setheight
 type CacheData struct {
+	Basic    []byte
+	Senior   []byte
+	Panel    []byte
+	Families []byte
+
 	MaxCacheSize  int
 	CurrentHeight uint64
 	LastHeight    uint64

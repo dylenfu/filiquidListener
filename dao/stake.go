@@ -7,7 +7,7 @@ import (
 )
 
 type Stake struct {
-	Id        string `gorm:"uniqueIndex"`
+	StakeId   string `gorm:"index"`
 	Staker    string `gorm:"index"`
 	Amount    string
 	Start     uint64
@@ -17,7 +17,7 @@ type Stake struct {
 }
 
 func (s *Stake) Up(raw *model.Staked) *Stake {
-	s.Id = raw.Id.String()
+	s.StakeId = raw.Id.String()
 	s.TimeStamp = raw.Timestamp
 	s.Staker = raw.Staker.Hex()
 	s.Amount = raw.Amount.String()
@@ -29,7 +29,7 @@ func (s *Stake) Up(raw *model.Staked) *Stake {
 
 func (s *Stake) Down() *model.StakedData {
 	d := new(model.StakedData)
-	d.Id = s.Id
+	d.Id = s.StakeId
 	d.Amount = s.Amount
 	d.Start = fmt.Sprintf("%d", s.Start)
 	d.End = fmt.Sprintf("%d", s.End)

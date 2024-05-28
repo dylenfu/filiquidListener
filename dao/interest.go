@@ -46,6 +46,6 @@ func (d *Dao) InsertInterest(data *Interest) error {
 
 func (d *Dao) GetInterest(minter string) ([]Interest, error) {
 	var list []Interest
-	err := d.db.Model(&Interest{}).Where("minter = ?", minter).Scan(list).Error
+	err := d.db.Model(&Interest{}).Where("minter = ?", minter).Scan(&list).Error
 	return list, err
 }

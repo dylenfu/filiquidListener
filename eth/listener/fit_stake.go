@@ -1,4 +1,4 @@
-package eth
+package listener
 
 import (
 	"github.com/ethereum/go-ethereum/core/types"
@@ -6,7 +6,7 @@ import (
 	"github.com/filiquid/listener/utils"
 )
 
-func (s *EClient) handleFitStakeEvent(name string, vlog types.Log) (any, error) {
+func (s *Listener) handleFitStakeEvent(name string, vlog types.Log) (any, error) {
 	switch name {
 	case eventInterest:
 		raw, err := s.fitFilter.ParseInterest(vlog)
