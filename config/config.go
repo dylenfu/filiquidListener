@@ -11,20 +11,19 @@ import (
 const (
 	CALIBRATION_GENESIS_UNIX_EPOCH = 1667326380
 
-	SECONDSBETWEENFETCH = 3 //15
-	FETCHDATAINTERVAL   = 5
-	MAXIMUMRESULTS      = 100
-	APYTHRESHOLD        = 50
-	BLOCKSPERYEAR       = 1036800
-	MAXNOTICELENGTH     = 10000
-	MAXBANNERLENGTH     = 10000
-	RATEBASE            = 1000000
-	U_M                 = 0.9
-	DAY1                = 24 * 60 * 60
-	DAY7                = DAY1 * 7
-	MONTH               = DAY1 * 30
-	MONTH3              = MONTH * 3
-	RPCQUERYREPEATTIME  = 6
+	FETCHDATAINTERVAL  = 5
+	MAXIMUMRESULTS     = 100
+	APYTHRESHOLD       = 50
+	BLOCKSPERYEAR      = 1036800
+	MAXNOTICELENGTH    = 10000
+	MAXBANNERLENGTH    = 10000
+	RATEBASE           = 1000000
+	U_M                = 0.9
+	DAY1               = 24 * 60 * 60
+	DAY7               = DAY1 * 7
+	MONTH              = DAY1 * 30
+	MONTH3             = MONTH * 3
+	RPCQUERYREPEATTIME = 6
 )
 
 var Conf *Config

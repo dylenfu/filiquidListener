@@ -59,14 +59,14 @@ func (s *Fetcher) IterateDataCallerQuerys(forceHeight uint64) {
 		lastHeight = forceHeight
 	}
 	// cache global state info
-	s.FetchAndSaveFamilies()
+	s.FetchAndSaveFamilies(lastHeight)
 	s.cache.FetchAndSaveBasicSeniorData()
 
-	ticker := time.NewTicker(time.Second * config.SECONDSBETWEENFETCH)
+	ticker := time.NewTicker(time.Second * time.Duration(config.Conf.FetchDuration))
 	for {
 		select {
 		case <-ticker.C:
-			s.FetchAndSaveFamilies()
+			s.FetchAndSaveFamilies(lastHeight)
 			s.FetchAndSaveData(lastHeight)
 			lastHeight += 1
 		case <-s.quit:
@@ -79,7 +79,7 @@ func (s *Fetcher) Close() {
 	close(s.quit)
 }
 
-func (c *Fetcher) FetchAndSaveFamilies() {
+func (c *Fetcher) FetchAndSaveFamilies(height uint64) {
 	raw := c.cache.GetFamilies()
 	if raw == nil {
 		return
@@ -90,7 +90,8 @@ func (c *Fetcher) FetchAndSaveFamilies() {
 		return
 	}
 
-	info, err := c.Caller.GetBatchedUserBorrows(nil, list)
+	info, err := c.Caller.GetBatchedUserBorrows(&bind.CallOpts{
+		BlockNumber: new(big.Int).SetUint64(height)}, list)
 	if err != nil {
 		log.Printf("getBatchedUserBorrows failed, err: %v", err)
 		return
@@ -106,15 +107,15 @@ func (c *Fetcher) FetchAndSaveFamilies() {
 }
 
 func (c *Fetcher) FetchAndSaveData(height uint64) {
-	rBasic, err := c.Caller.FetchData(&bind.CallOpts{
-		BlockNumber: new(big.Int).SetUint64(height),
-	})
+	log.Printf("ETH Client Get height: %d", height)
+
+	query := &bind.CallOpts{BlockNumber: new(big.Int).SetUint64(height)}
+	rBasic, err := c.Caller.FetchData(query)
 	if err != nil {
 		log.Printf("fetchData failed, height %v, err: %v", height, err)
 		return
 	}
 
-	log.Printf("ETH Client Get height: %d", rBasic.BlockHeight.Uint64())
 	basic := new(dao.BasicData).Up(&rBasic)
 	if err := c.dao.InsertBasic(basic); err != nil {
 		log.Printf("Insert basic data failed, err: %v", err)
@@ -122,7 +123,7 @@ func (c *Fetcher) FetchAndSaveData(height uint64) {
 	}
 
 	if c.ticker == 0 {
-		response, err := c.Caller.GetTotalPendingInterest(nil)
+		response, err := c.Caller.GetTotalPendingInterest(query)
 		if err != nil {
 			log.Printf("Get total pending intersest failed, err: %v", err)
 			return
