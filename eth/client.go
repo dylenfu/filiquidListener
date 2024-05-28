@@ -26,6 +26,6 @@ func (c *EClient) Close() {
 }
 
 func (c *EClient) Run(listenerForceHeight, fetcherForceHeight uint64) {
-	//go c.listener.IterateOnChainEvents(listenerForceHeight)
+	go c.listener.IterateOnChainEvents(listenerForceHeight)
 	go c.fetcher.IterateDataCallerQuerys(fetcherForceHeight)
 }

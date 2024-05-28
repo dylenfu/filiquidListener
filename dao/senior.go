@@ -8,7 +8,7 @@ import (
 )
 
 type SeniorData struct {
-	BlockHeight          uint64 `gorm:"primaryKey"`
+	BlockHeight          uint64 `gorm:"uniqueIndex"`
 	BlockTimeStamp       uint64
 	TotalPendingInterest string
 	TotalFIL             string
@@ -28,14 +28,31 @@ func (s *SeniorData) Up(d struct {
 	AccumulatedPayback   *big.Int
 	InterestExp          *big.Int
 }) *SeniorData {
-	s.BlockHeight = d.BlockHeight.Uint64()
-	s.BlockTimeStamp = d.BlockTimeStamp.Uint64()
-	s.TotalPendingInterest = d.TotalPendingInterest.String()
-	s.TotalFIL = d.TotalFIL.String()
-	s.Borrowing = d.Borrowing.String()
-	s.BorrowingAndPeriod = d.BorrowingAndPeriod.String()
-	s.AccumulatedPayback = d.AccumulatedPayback.String()
-	s.InterestExp = d.InterestExp.String()
+	if d.BlockHeight != nil {
+		s.BlockHeight = d.BlockHeight.Uint64()
+	}
+	if d.BlockTimeStamp != nil {
+		s.BlockTimeStamp = d.BlockTimeStamp.Uint64()
+	}
+	if d.TotalPendingInterest != nil {
+		s.TotalPendingInterest = d.TotalPendingInterest.String()
+	}
+	if d.TotalFIL != nil {
+		s.TotalFIL = d.TotalFIL.String()
+	}
+	if d.Borrowing != nil {
+		s.Borrowing = d.Borrowing.String()
+	}
+	if d.BorrowingAndPeriod != nil {
+		s.BorrowingAndPeriod = d.BorrowingAndPeriod.String()
+	}
+	if d.AccumulatedPayback != nil {
+		s.AccumulatedPayback = d.AccumulatedPayback.String()
+	}
+	if d.InterestExp != nil {
+		s.InterestExp = d.InterestExp.String()
+	}
+
 	return s
 }
 
@@ -68,7 +85,7 @@ func (s *Dao) GetSeniorDataCount() (int64, error) {
 
 func (s *Dao) GetLatestSeniorData() (*SeniorData, error) {
 	data := new(SeniorData)
-	if err := s.db.Model(&SeniorData{}).Order("block_height desc").Limit(1).Scan(data).Error; err != nil {
+	if err := s.db.Model(&SeniorData{}).Order("block_height desc").First(data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil

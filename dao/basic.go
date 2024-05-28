@@ -81,60 +81,167 @@ func (b *BasicData) Up(basicData *struct {
 	FiLLiquidGovernanceFactors data.DataFetcherFiLLiquidGovernanceFactors
 	FitStakeGovernanceFactors  data.DataFetcherFITStakeGovernanceFactors
 }) *BasicData {
-	b.BlockHeight = basicData.BlockHeight.Uint64()
-	b.BlockTimeStamp = basicData.BlockTimeStamp.Uint64()
-	b.FitTotalSupply = basicData.FitTotalSupply.String()
-	b.FigTotalSupply = basicData.FigTotalSupply.String()
-	b.TotalFIL = basicData.FilLiquidInfo.TotalFIL.String()
-	b.AvailableFIL = basicData.FilLiquidInfo.AvailableFIL.String()
-	b.UtilizedLiquidity = basicData.FilLiquidInfo.UtilizedLiquidity.String()
-	b.AccumulatedDeposit = basicData.FilLiquidInfo.AccumulatedDeposit.String()
-	b.AccumulatedRedeem = basicData.FilLiquidInfo.AccumulatedRedeem.String()
-	b.AccumulatedBurntFILTrust = basicData.FilLiquidInfo.AccumulatedBurntFILTrust.String()
-	b.AccumulatedMintFILTrust = basicData.FilLiquidInfo.AccumulatedMintFILTrust.String()
-	b.AccumulatedBorrow = basicData.FilLiquidInfo.AccumulatedBorrow.String()
-	b.AccumulatedPayback = basicData.FilLiquidInfo.AccumulatedPayback.String()
-	b.AccumulatedInterest = basicData.FilLiquidInfo.AccumulatedInterest.String()
-	b.AccumulatedRedeemFee = basicData.FilLiquidInfo.AccumulatedRedeemFee.String()
-	b.AccumulatedBorrowFee = basicData.FilLiquidInfo.AccumulatedBorrowFee.String()
-	b.AccumulatedLiquidateReward = basicData.FilLiquidInfo.AccumulatedLiquidateReward.String()
-	b.AccumulatedLiquidateFee = basicData.FilLiquidInfo.AccumulatedLiquidateFee.String()
-	b.AccumulatedDeposits = basicData.FilLiquidInfo.AccumulatedDeposits.String()
-	b.AccumulatedBorrows = basicData.FilLiquidInfo.AccumulatedBorrows.String()
-	b.UtilizationRate = basicData.FilLiquidInfo.UtilizationRate.String()
-	b.ExchangeRate = basicData.FilLiquidInfo.ExchangeRate.String()
-	b.InterestRate = basicData.FilLiquidInfo.InterestRate.String()
-	b.CollateralizedMiner = basicData.FilLiquidInfo.CollateralizedMiner.String()
-	b.MinerWithBorrows = basicData.FilLiquidInfo.MinerWithBorrows.String()
-	b.RateBase = basicData.FilLiquidInfo.RateBase.String()
-	b.AccumulatedStake = basicData.FitStakeInfo.AccumulatedStake.String()
-	b.AccumulatedStakeDuration = basicData.FitStakeInfo.AccumulatedStakeDuration.String()
-	b.AccumulatedInterestMint = basicData.FitStakeInfo.AccumulatedInterestMint.String()
-	b.AccumulatedStakeMint = basicData.FitStakeInfo.AccumulatedStakeMint.String()
-	b.AccumulatedWithdrawn = basicData.FitStakeInfo.AccumulatedWithdrawn.String()
-	b.NextStakeID = basicData.FitStakeInfo.NextStakeID.String()
-	b.ReleasedFigStake = basicData.FitStakeInfo.ReleasedFIGStake.String()
-	b.Bonders = basicData.GovernanceInfo.Bonders.String()
-	b.TotalBondedAmount = basicData.GovernanceInfo.TotalBondedAmount.String()
-	b.FirstActiveProposalId = basicData.GovernanceInfo.FirstActiveProposalId.String()
-	b.U1 = basicData.FiLLiquidGovernanceFactors.U1.String()
-	b.R0 = basicData.FiLLiquidGovernanceFactors.R0.String()
-	b.R1 = basicData.FiLLiquidGovernanceFactors.R1.String()
-	b.RM = basicData.FiLLiquidGovernanceFactors.RM.String()
-	b.CollateralRate = basicData.FiLLiquidGovernanceFactors.CollateralRate.String()
-	b.MaxFamilySize = basicData.FiLLiquidGovernanceFactors.MaxFamilySize.String()
-	b.AlertThreshold = basicData.FiLLiquidGovernanceFactors.AlertThreshold.String()
-	b.LiquidateThreshold = basicData.FiLLiquidGovernanceFactors.LiquidateThreshold.String()
-	b.MaxLiquidations = basicData.FiLLiquidGovernanceFactors.MaxLiquidations.String()
-	b.MinLiquidateInterval = basicData.FiLLiquidGovernanceFactors.MinLiquidateInterval.String()
-	b.LiquidateDiscountRate = basicData.FiLLiquidGovernanceFactors.LiquidateDiscountRate.String()
-	b.LiquidateFeeRate = basicData.FiLLiquidGovernanceFactors.LiquidateFeeRate.String()
-	b.MaxExistingBorrows = basicData.FiLLiquidGovernanceFactors.MaxExistingBorrows.String()
-	b.MinBorrowAmount = basicData.FiLLiquidGovernanceFactors.MinBorrowAmount.String()
-	b.MinDepositAmount = basicData.FiLLiquidGovernanceFactors.MinDepositAmount.String()
+	if basicData.BlockHeight != nil {
+		b.BlockHeight = basicData.BlockHeight.Uint64()
+	}
+	if basicData.BlockTimeStamp != nil {
+		b.BlockTimeStamp = basicData.BlockTimeStamp.Uint64()
+	}
+	if basicData.FitTotalSupply != nil {
+		b.FitTotalSupply = basicData.FitTotalSupply.String()
+	}
+	if basicData.FigTotalSupply != nil {
+		b.FigTotalSupply = basicData.FigTotalSupply.String()
+	}
+	if basicData.FilLiquidInfo.TotalFIL != nil {
+		b.TotalFIL = basicData.FilLiquidInfo.TotalFIL.String()
+	}
+	if basicData.FilLiquidInfo.AvailableFIL != nil {
+		b.AvailableFIL = basicData.FilLiquidInfo.AvailableFIL.String()
+	}
+	if basicData.FilLiquidInfo.UtilizedLiquidity != nil {
+		b.UtilizedLiquidity = basicData.FilLiquidInfo.UtilizedLiquidity.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedDeposit != nil {
+		b.AccumulatedDeposit = basicData.FilLiquidInfo.AccumulatedDeposit.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedRedeem != nil {
+		b.AccumulatedRedeem = basicData.FilLiquidInfo.AccumulatedRedeem.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedBurntFILTrust != nil {
+		b.AccumulatedBurntFILTrust = basicData.FilLiquidInfo.AccumulatedBurntFILTrust.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedMintFILTrust != nil {
+		b.AccumulatedMintFILTrust = basicData.FilLiquidInfo.AccumulatedMintFILTrust.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedBorrow != nil {
+		b.AccumulatedBorrow = basicData.FilLiquidInfo.AccumulatedBorrow.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedPayback != nil {
+		b.AccumulatedPayback = basicData.FilLiquidInfo.AccumulatedPayback.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedInterest != nil {
+		b.AccumulatedInterest = basicData.FilLiquidInfo.AccumulatedInterest.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedRedeemFee != nil {
+		b.AccumulatedRedeemFee = basicData.FilLiquidInfo.AccumulatedRedeemFee.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedBorrowFee != nil {
+		b.AccumulatedBorrowFee = basicData.FilLiquidInfo.AccumulatedBorrowFee.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedLiquidateReward != nil {
+		b.AccumulatedLiquidateReward = basicData.FilLiquidInfo.AccumulatedLiquidateReward.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedLiquidateFee != nil {
+		b.AccumulatedLiquidateFee = basicData.FilLiquidInfo.AccumulatedLiquidateFee.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedDeposits != nil {
+		b.AccumulatedDeposits = basicData.FilLiquidInfo.AccumulatedDeposits.String()
+	}
+	if basicData.FilLiquidInfo.AccumulatedBorrows != nil {
+		b.AccumulatedBorrows = basicData.FilLiquidInfo.AccumulatedBorrows.String()
+	}
+	if basicData.FilLiquidInfo.UtilizationRate != nil {
+		b.UtilizationRate = basicData.FilLiquidInfo.UtilizationRate.String()
+	}
+	if basicData.FilLiquidInfo.ExchangeRate != nil {
+		b.ExchangeRate = basicData.FilLiquidInfo.ExchangeRate.String()
+	}
+	if basicData.FilLiquidInfo.InterestRate != nil {
+		b.InterestRate = basicData.FilLiquidInfo.InterestRate.String()
+	}
+	if basicData.FilLiquidInfo.CollateralizedMiner != nil {
+		b.CollateralizedMiner = basicData.FilLiquidInfo.CollateralizedMiner.String()
+	}
+	if basicData.FilLiquidInfo.MinerWithBorrows != nil {
+		b.MinerWithBorrows = basicData.FilLiquidInfo.MinerWithBorrows.String()
+	}
+	if basicData.FilLiquidInfo.RateBase != nil {
+		b.RateBase = basicData.FilLiquidInfo.RateBase.String()
+	}
+	if basicData.FitStakeInfo.AccumulatedStake != nil {
+		b.AccumulatedStake = basicData.FitStakeInfo.AccumulatedStake.String()
+	}
+	if basicData.FitStakeInfo.AccumulatedStakeDuration != nil {
+		b.AccumulatedStakeDuration = basicData.FitStakeInfo.AccumulatedStakeDuration.String()
+	}
+	if basicData.FitStakeInfo.AccumulatedInterestMint != nil {
+		b.AccumulatedInterestMint = basicData.FitStakeInfo.AccumulatedInterestMint.String()
+	}
+	if basicData.FitStakeInfo.AccumulatedStakeMint != nil {
+		b.AccumulatedStakeMint = basicData.FitStakeInfo.AccumulatedStakeMint.String()
+	}
+	if basicData.FitStakeInfo.AccumulatedWithdrawn != nil {
+		b.AccumulatedWithdrawn = basicData.FitStakeInfo.AccumulatedWithdrawn.String()
+	}
+	if basicData.FitStakeInfo.NextStakeID != nil {
+		b.NextStakeID = basicData.FitStakeInfo.NextStakeID.String()
+	}
+	if basicData.FitStakeInfo.ReleasedFIGStake != nil {
+		b.ReleasedFigStake = basicData.FitStakeInfo.ReleasedFIGStake.String()
+	}
+	if basicData.GovernanceInfo.Bonders != nil {
+		b.Bonders = basicData.GovernanceInfo.Bonders.String()
+	}
+	if basicData.GovernanceInfo.TotalBondedAmount != nil {
+		b.TotalBondedAmount = basicData.GovernanceInfo.TotalBondedAmount.String()
+	}
+	if basicData.GovernanceInfo.FirstActiveProposalId != nil {
+		b.FirstActiveProposalId = basicData.GovernanceInfo.FirstActiveProposalId.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.U1 != nil {
+		b.U1 = basicData.FiLLiquidGovernanceFactors.U1.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.R0 != nil {
+		b.R0 = basicData.FiLLiquidGovernanceFactors.R0.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.R1 != nil {
+		b.R1 = basicData.FiLLiquidGovernanceFactors.R1.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.RM != nil {
+		b.RM = basicData.FiLLiquidGovernanceFactors.RM.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.CollateralRate != nil {
+		b.CollateralRate = basicData.FiLLiquidGovernanceFactors.CollateralRate.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MaxFamilySize != nil {
+		b.MaxFamilySize = basicData.FiLLiquidGovernanceFactors.MaxFamilySize.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.AlertThreshold != nil {
+		b.AlertThreshold = basicData.FiLLiquidGovernanceFactors.AlertThreshold.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.LiquidateThreshold != nil {
+		b.LiquidateThreshold = basicData.FiLLiquidGovernanceFactors.LiquidateThreshold.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MaxLiquidations != nil {
+		b.MaxLiquidations = basicData.FiLLiquidGovernanceFactors.MaxLiquidations.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MinLiquidateInterval != nil {
+		b.MinLiquidateInterval = basicData.FiLLiquidGovernanceFactors.MinLiquidateInterval.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.LiquidateDiscountRate != nil {
+		b.LiquidateDiscountRate = basicData.FiLLiquidGovernanceFactors.LiquidateDiscountRate.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.LiquidateFeeRate != nil {
+		b.LiquidateFeeRate = basicData.FiLLiquidGovernanceFactors.LiquidateFeeRate.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MaxExistingBorrows != nil {
+		b.MaxExistingBorrows = basicData.FiLLiquidGovernanceFactors.MaxExistingBorrows.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MinBorrowAmount != nil {
+		b.MinBorrowAmount = basicData.FiLLiquidGovernanceFactors.MinBorrowAmount.String()
+	}
+	if basicData.FiLLiquidGovernanceFactors.MinDepositAmount != nil {
+		b.MinDepositAmount = basicData.FiLLiquidGovernanceFactors.MinDepositAmount.String()
+	}
+
 	//b.N = basicData.FiLLiquidGovernanceFactors.N.String()
-	b.NInterest = basicData.FitStakeGovernanceFactors.NInterest.String()
-	b.NStake = basicData.FitStakeGovernanceFactors.NStake.String()
+	if basicData.FitStakeGovernanceFactors.NInterest != nil {
+		b.NInterest = basicData.FitStakeGovernanceFactors.NInterest.String()
+	}
+	if basicData.FitStakeGovernanceFactors.NStake != nil {
+		b.NStake = basicData.FitStakeGovernanceFactors.NStake.String()
+	}
 
 	return b
 }

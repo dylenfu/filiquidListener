@@ -113,6 +113,7 @@ func (c *Fetcher) FetchAndSaveData(height uint64) {
 		log.Printf("fetchData failed, height %v, err: %v", height, err)
 		return
 	}
+
 	log.Printf("ETH Client Get height: %d", rBasic.BlockHeight.Uint64())
 	basic := new(dao.BasicData).Up(&rBasic)
 	if err := c.dao.InsertBasic(basic); err != nil {

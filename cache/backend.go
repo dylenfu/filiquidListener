@@ -44,16 +44,14 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 		return fmt.Errorf("GetSeniorDataCount failed, err: %v", err)
 	}
 
-	// todo
-	// if nBasic == 0 && nSenior == 0 {
-	// 	return nil
-	// }
+	if nBasic == 0 && nSenior == 0 {
+		return nil
+	}
 
 	rawLatestBasic, err := c.dao.GetLatestBasicData()
 	if err != nil {
 		return fmt.Errorf("GetLastestBasicData failed, err: %v", err)
 	}
-	fmt.Println("----rawLatestBasic", rawLatestBasic)
 
 	latestBasic := rawLatestBasic.Down()
 	panel, err := basicData2Front(latestBasic)
