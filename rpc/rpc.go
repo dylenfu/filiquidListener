@@ -247,6 +247,8 @@ func (s *RPCServer) getCachedFamilies(w http.ResponseWriter, r *http.Request) {
 
 		if data := s.cache.GetFamilies(); data != nil {
 			w.Write(data)
+		} else {
+			log.Printf("GetFamilies is nil")
 		}
 	}
 }

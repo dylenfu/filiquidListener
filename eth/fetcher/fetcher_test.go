@@ -38,3 +38,12 @@ func TestFetchData(t *testing.T) {
 	}
 	t.Log(raw)
 }
+
+// go test -count=1 -v github.com/filiquid/listener/eth/fetcher -run TestGetFamilies
+func TestGetFamilies(t *testing.T) {
+	height := uint64(1651682)
+	testcli.cache.FetchAndSaveBasicCache()
+	testcli.FetchAndSaveFamilies(height)
+	data := testcli.cache.GetFamilies()
+	t.Log(string(data))
+}

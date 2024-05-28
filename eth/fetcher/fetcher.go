@@ -1,7 +1,9 @@
 package fetcher
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/big"
 	"time"
@@ -18,7 +20,7 @@ import (
 
 type Fetcher struct {
 	cfg        *config.EClient
-	LastHeight uint64
+	lastHeight uint64
 	ticker     int
 
 	client *ethclient.Client
@@ -54,21 +56,29 @@ func (s *Fetcher) IterateDataCallerQuerys(forceHeight uint64) {
 	if err != nil {
 		log.Printf("fetch latest blcok heigh failed, err:%v", err)
 	}
+
 	// 初始运行时，以及后续需要回退一定距离时可以强行设置lastHeight
 	if forceHeight > 0 && (lastHeight == 0 || (lastHeight > 0 && forceHeight < lastHeight)) {
 		lastHeight = forceHeight
 	}
 	// cache global state info
-	s.FetchAndSaveFamilies(lastHeight)
 	s.cache.FetchAndSaveBasicSeniorData()
+	s.lastHeight = lastHeight
 
 	ticker := time.NewTicker(time.Second * time.Duration(config.Conf.FetchDuration))
 	for {
 		select {
 		case <-ticker.C:
-			s.FetchAndSaveFamilies(lastHeight)
-			s.FetchAndSaveData(lastHeight)
-			lastHeight += 1
+			current, err := s.client.BlockNumber(context.Background())
+			if err != nil {
+				log.Printf("get current blockNumber failed,err: %v", err)
+			}
+			if s.lastHeight < current {
+				s.FetchAndSaveFamilies(s.lastHeight)
+				s.FetchAndSaveData(s.lastHeight)
+				s.lastHeight += 1
+			}
+			log.Printf("Fetcher height, last %v, onchain %v", s.lastHeight, current)
 		case <-s.quit:
 			return
 		}
@@ -79,36 +89,33 @@ func (s *Fetcher) Close() {
 	close(s.quit)
 }
 
-func (c *Fetcher) FetchAndSaveFamilies(height uint64) {
-	raw := c.cache.GetFamilies()
-	if raw == nil {
-		return
+func (c *Fetcher) getFamilies(users []common.Address) error {
+	info, err := c.Caller.GetBatchedUserBorrows(nil, users)
+	if err != nil {
+		return fmt.Errorf("getBatchedUserBorrows failed, err: %v", err)
 	}
-	var list []common.Address
-	if err := json.Unmarshal(raw, &list); err != nil {
-		log.Printf("getFamilies unmarshal data failed, raw: %s, err: %v", string(raw), err)
-		return
+	bs, err := utils.ToJson(info)
+	if err != nil {
+		return fmt.Errorf("unmarshal families info failed, err: %v", err)
+	}
+	c.cache.SetFamilies(bs)
+	return nil
+}
+
+func (c *Fetcher) FetchAndSaveFamilies(height uint64) error {
+	raw := c.cache.GetFamilyList()
+	if raw == nil {
+		return fmt.Errorf("cache.GetFamilyList is nil")
 	}
 
-	info, err := c.Caller.GetBatchedUserBorrows(&bind.CallOpts{
-		BlockNumber: new(big.Int).SetUint64(height)}, list)
-	if err != nil {
-		log.Printf("getBatchedUserBorrows failed, err: %v", err)
-		return
+	var users []common.Address
+	if err := json.Unmarshal(raw, &users); err != nil {
+		return fmt.Errorf("unmarshl familyList failed, err:%v", err)
 	}
-	if info != nil {
-		bs, err := utils.ToJson(info)
-		if err != nil {
-			log.Printf("marshal borrows info to json failed, err:%v", err)
-			return
-		}
-		c.cache.SetFamilies(bs)
-	}
+	return c.getFamilies(users)
 }
 
 func (c *Fetcher) FetchAndSaveData(height uint64) {
-	log.Printf("ETH Client Get height: %d", height)
-
 	query := &bind.CallOpts{BlockNumber: new(big.Int).SetUint64(height)}
 	rBasic, err := c.Caller.FetchData(query)
 	if err != nil {

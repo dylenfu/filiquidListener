@@ -148,7 +148,7 @@ func (s *Listener) IterateOnChainEvents(forceHeight uint64) {
 	s.cache.SetCurrentHeight(currentHeight)
 
 	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("fetchAndSaveBasicCache failed, err:%v", err)
 	}
 
 	ticker := time.NewTicker(time.Second * time.Duration(config.Conf.FetchDuration))
@@ -213,7 +213,7 @@ func (s *Listener) iterateBlockEvents() {
 		log.Printf("UpdateLastHeight failed, err: %v", err)
 	}
 	s.cache.SetLastHeight(end)
-	log.Printf("UpdateLastHeight %d", end)
+	log.Printf("Listener height %d", end)
 
 	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
 		log.Printf("FetchAndSaveBasicCache failed, err: %v", err)
