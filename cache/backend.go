@@ -45,7 +45,7 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	}
 
 	if nBasic == 0 && nSenior == 0 {
-		return nil
+		return fmt.Errorf("basic and senior db data are nil")
 	}
 
 	rawLatestBasic, err := c.dao.GetLatestBasicData()
@@ -65,6 +65,7 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 		return fmt.Errorf("GetLatestSeniorData failed, err: %v", err)
 	}
 	latestSenior := rawLatestSenior.Down()
+
 	apy, err := utils.CalculateAPY(latestSenior.InterestExp, latestSenior.TotalFIL)
 	if err != nil {
 		return fmt.Errorf("CalculateAPY failed, err: %v", err)
@@ -80,7 +81,7 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 			return fmt.Errorf("GetBasicDataAll failed, err: %v", err)
 		}
 	} else {
-		if basicIntervalList, err = c.dao.GetBasicDataInterval(nBasic / maxIntervalNum); err != nil {
+		if basicIntervalList, err = c.dao.GetBasicDataInterval(nBasic/maxIntervalNum, maxIntervalNum); err != nil {
 			return fmt.Errorf("GetBasicDataInterval failed, err: %v", err)
 		}
 	}
@@ -102,7 +103,7 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 			return fmt.Errorf("GetSeniorDataAll failed, err: %v", err)
 		}
 	} else {
-		if seniorIntervalList, err = c.dao.GetSeniorDataInterval(nSenior / maxIntervalNum); err != nil {
+		if seniorIntervalList, err = c.dao.GetSeniorDataInterval(nSenior/maxIntervalNum, maxIntervalNum); err != nil {
 			return fmt.Errorf("GetSeniorDataInterval failed, err: %v", err)
 		}
 	}
@@ -184,17 +185,17 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 
 func (c *CacheData) getBasicSamplingData(lowerBond, maxIntervalNum int64) ([]model.BasicDataStructFront, error) {
 
-	nBasic1Day, err := c.dao.GetBasicDataLowerTimeCount(lowerBond)
+	nBasic, err := c.dao.GetBasicDataLowerTimeCount(lowerBond)
 	if err != nil {
 		return nil, err
 	}
 	var basic1DayIntervalList []dao.BasicData
-	if nBasic1Day < maxIntervalNum {
+	if nBasic < maxIntervalNum {
 		if basic1DayIntervalList, err = c.dao.GetBasicDataLowerTimeList(lowerBond); err != nil {
 			return nil, err
 		}
 	} else {
-		if basic1DayIntervalList, err = c.dao.GetBasicDataLowerTimeIntervalList(lowerBond, nBasic1Day/maxIntervalNum); err != nil {
+		if basic1DayIntervalList, err = c.dao.GetBasicDataLowerTimeIntervalList(lowerBond, nBasic/maxIntervalNum, maxIntervalNum); err != nil {
 			return nil, err
 		}
 	}
@@ -211,20 +212,20 @@ func (c *CacheData) getBasicSamplingData(lowerBond, maxIntervalNum int64) ([]mod
 }
 
 func (c *CacheData) getSeniorSamplingData(lowerBond, maxIntervalNum int64) ([]model.SeniorDataStructFront, error) {
-	nSenior1Day, err := c.dao.GetSeniorDataLowerTimeCount(lowerBond)
+	nSenior, err := c.dao.GetSeniorDataLowerTimeCount(lowerBond)
 	if err != nil {
 		return nil, err
 	}
 	var senior1DayIntervalList []dao.SeniorData
-	if nSenior1Day < maxIntervalNum {
-		if senior1DayIntervalList, err = c.dao.GetSeniorDataLowerTimeList(nSenior1Day); err != nil {
-			return nil, err
-		} else {
-			if senior1DayIntervalList, err = c.dao.GetSeniorDataLowerTimeIntervalList(lowerBond, nSenior1Day/maxIntervalNum); err != nil {
-				return nil, err
-			}
-		}
+	if nSenior < maxIntervalNum {
+		senior1DayIntervalList, err = c.dao.GetSeniorDataLowerTimeList(nSenior)
+	} else {
+		senior1DayIntervalList, err = c.dao.GetSeniorDataLowerTimeIntervalList(lowerBond, nSenior/maxIntervalNum, maxIntervalNum)
 	}
+	if err != nil {
+		return nil, err
+	}
+
 	list := make([]model.SeniorDataStructFront, 0)
 	for i := 0; i < len(senior1DayIntervalList); i++ {
 		d := senior1DayIntervalList[i].Down()

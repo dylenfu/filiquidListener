@@ -93,16 +93,16 @@ func (s *Dao) GetLatestSeniorData() (*SeniorData, error) {
 
 func (s *Dao) GetSeniorDataAll() ([]SeniorData, error) {
 	var list []SeniorData
-	if err := s.db.Find(&list).Error; err != nil {
+	if err := s.db.Model(SeniorData{}).Order("block_height desc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
 }
 
-func (s *Dao) GetSeniorDataInterval(interval int64) ([]SeniorData, error) {
+func (s *Dao) GetSeniorDataInterval(interval, limit int64) ([]SeniorData, error) {
 	var list []SeniorData
 
-	if err := s.db.Find(&list).Where("block_height % ? = 0", interval).Order("block_height asc").Error; err != nil {
+	if err := s.db.Model(SeniorData{}).Where("block_height % ? = 0", interval).Order("block_height desc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (s *Dao) GetSeniorDataInterval(interval int64) ([]SeniorData, error) {
 
 func (s *Dao) GetSeniorDataLowerTimeCount(lowerBond int64) (int64, error) {
 	var num int64
-	if err := s.db.Model(&SeniorData{}).Select("count(*)").Where("block_time_stamp >= ?", lowerBond).Count(&num).Error; err != nil {
+	if err := s.db.Model(&SeniorData{}).Where("block_time_stamp >= ?", lowerBond).Count(&num).Error; err != nil {
 		return 0, err
 	}
 	return num, nil
@@ -119,15 +119,15 @@ func (s *Dao) GetSeniorDataLowerTimeCount(lowerBond int64) (int64, error) {
 
 func (s *Dao) GetSeniorDataLowerTimeList(lowerBond int64) ([]SeniorData, error) {
 	var list []SeniorData
-	if err := s.db.Model(&SeniorData{}).Select("*").Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Scan(&list).Error; err != nil {
+	if err := s.db.Model(&SeniorData{}).Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
 }
 
-func (s *Dao) GetSeniorDataLowerTimeIntervalList(lowerBond int64, interval int64) ([]SeniorData, error) {
+func (s *Dao) GetSeniorDataLowerTimeIntervalList(lowerBond, interval, limit int64) ([]SeniorData, error) {
 	var list []SeniorData
-	if err := s.db.Model(&SeniorData{}).Select("*").Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height asc").Scan(&list).Error; err != nil {
+	if err := s.db.Model(&SeniorData{}).Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height desc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil

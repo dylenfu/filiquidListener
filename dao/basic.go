@@ -344,10 +344,10 @@ func (s *Dao) GetBasicDataAll() ([]BasicData, error) {
 	return list, nil
 }
 
-func (s *Dao) GetBasicDataInterval(interval int64) ([]BasicData, error) {
+func (s *Dao) GetBasicDataInterval(interval, limit int64) ([]BasicData, error) {
 	var list []BasicData
 
-	if err := s.db.Find(&list).Where("block_height % ? = 0", interval).Order("block_height asc").Error; err != nil {
+	if err := s.db.Model(BasicData{}).Where("block_height % ? = 0", interval).Order("block_height desc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
 
@@ -356,7 +356,7 @@ func (s *Dao) GetBasicDataInterval(interval int64) ([]BasicData, error) {
 
 func (s *Dao) GetBasicDataLowerTimeCount(lowerBond int64) (int64, error) {
 	var num int64
-	if err := s.db.Model(&BasicData{}).Select("count(*)").Where("block_time_stamp >= ?", lowerBond).Count(&num).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ?", lowerBond).Count(&num).Error; err != nil {
 		return 0, err
 	}
 	return num, nil
@@ -364,15 +364,15 @@ func (s *Dao) GetBasicDataLowerTimeCount(lowerBond int64) (int64, error) {
 
 func (s *Dao) GetBasicDataLowerTimeList(lowerBond int64) ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Select("*").Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Find(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ?", lowerBond).Order("block_height desc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
 }
 
-func (s *Dao) GetBasicDataLowerTimeIntervalList(lowerBond int64, interval int64) ([]BasicData, error) {
+func (s *Dao) GetBasicDataLowerTimeIntervalList(lowerBond, interval, limit int64) ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Select("*").Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height asc").Scan(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height asc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
