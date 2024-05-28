@@ -202,7 +202,7 @@ func (s *Listener) iterateBlockEvents() {
 		end = start + uint64(config.Conf.BlockScanRange)
 	}
 
-	log.Printf("start: %d, end: %d\n", start, end)
+	log.Printf("Listener height, current: %v, start: %d, end: %d\n", current, start, end)
 
 	s.handleSingleContrctEvents(contractLiquid, start, end)
 	s.handleSingleContrctEvents(contractGovernance, start, end)
