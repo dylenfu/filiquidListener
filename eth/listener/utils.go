@@ -1,4 +1,4 @@
-package eth
+package listener
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"github.com/filiquid/listener/model"
 )
 
-func (s *EClient) GetCurrentHeight() (uint64, error) {
+func (s *Listener) GetCurrentHeight() (uint64, error) {
 	return s.client.BlockNumber(context.Background())
 }
 
-func (s *EClient) getLogs(start, end uint64, addr common.Address) []types.Log {
+func (s *Listener) getLogs(start, end uint64, addr common.Address) []types.Log {
 	query := setQuery(start, end, addr)
 	for {
 		logs, err := s.client.FilterLogs(context.Background(), query)
@@ -26,20 +26,20 @@ func (s *EClient) getLogs(start, end uint64, addr common.Address) []types.Log {
 	}
 }
 
-func (s *EClient) checkMappingIndex(vlog *types.Log) bool {
+func setQuery(start, end uint64, contract common.Address) ethereum.FilterQuery {
+	return ethereum.FilterQuery{
+		FromBlock: new(big.Int).SetUint64(start),
+		ToBlock:   new(big.Int).SetUint64(end),
+		Addresses: []common.Address{contract},
+	}
+}
+
+func (s *Listener) checkMappingIndex(vlog *types.Log) bool {
 	index := model.NewMappingIndex(vlog.BlockNumber, vlog.Index)
 	if s.cache.GetHaveSeen(&index) {
 		return false
 	} else {
 		s.cache.SetHaveSeen(&index)
 		return true
-	}
-}
-
-func setQuery(start, end uint64, contract common.Address) ethereum.FilterQuery {
-	return ethereum.FilterQuery{
-		FromBlock: new(big.Int).SetUint64(start),
-		ToBlock:   new(big.Int).SetUint64(end),
-		Addresses: []common.Address{contract},
 	}
 }

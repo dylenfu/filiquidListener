@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	configPath = flag.String("config", "config.json", "config file path")
-	start      = flag.Uint64("forceHeight", 0, "force height for scan history blocks")
-	migrate    = flag.Bool("migrate", false, "create database tables")
-	limiter    = utils.NewIPRateLimiter(1, 5)
+	configPath     = flag.String("config", "config.json", "config file path")
+	listenerHeight = flag.Uint64("listenerHeight", 0, "force height for iterate block events")
+	fetcherHeight  = flag.Uint64("fetcherHeight", 0, "force height for data caller query starting")
+	migrate        = flag.Bool("migrate", false, "create database tables")
+	limiter        = utils.NewIPRateLimiter(1, 5)
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	if *migrate {
 		s.Migrate()
 	} else {
-		s.Run(*start)
+		s.Run(*listenerHeight, *fetcherHeight)
 		waitToExit(s)
 	}
 }

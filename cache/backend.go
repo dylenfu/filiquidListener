@@ -37,33 +37,39 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 
 	nBasic, err := c.dao.GetBasicDataCount()
 	if err != nil {
-		return err
+		return fmt.Errorf("GetBasicDataCount failed, err: %v", err)
 	}
 	nSenior, err := c.dao.GetSeniorDataCount()
 	if err != nil {
-		return err
+		return fmt.Errorf("GetSeniorDataCount failed, err: %v", err)
 	}
+
+	// todo
+	// if nBasic == 0 && nSenior == 0 {
+	// 	return nil
+	// }
 
 	rawLatestBasic, err := c.dao.GetLatestBasicData()
 	if err != nil {
-		return err
+		return fmt.Errorf("GetLastestBasicData failed, err: %v", err)
 	}
+	fmt.Println("----rawLatestBasic", rawLatestBasic)
 
 	latestBasic := rawLatestBasic.Down()
 	panel, err := basicData2Front(latestBasic)
 	if err != nil {
-		return err
+		return fmt.Errorf("basicData2Front failed: %v", err)
 	}
 	front.Panel = *panel
 
 	rawLatestSenior, err := c.dao.GetLatestSeniorData()
 	if err != nil {
-		return err
+		return fmt.Errorf("GetLatestSeniorData failed, err: %v", err)
 	}
 	latestSenior := rawLatestSenior.Down()
 	apy, err := utils.CalculateAPY(latestSenior.InterestExp, latestSenior.TotalFIL)
 	if err != nil {
-		return err
+		return fmt.Errorf("CalculateAPY failed, err: %v", err)
 	}
 	front.Panel.APY = apy
 
@@ -73,11 +79,11 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	var basicIntervalList []dao.BasicData
 	if nBasic < maxIntervalNum {
 		if basicIntervalList, err = c.dao.GetBasicDataAll(); err != nil {
-			return err
+			return fmt.Errorf("GetBasicDataAll failed, err: %v", err)
 		}
 	} else {
 		if basicIntervalList, err = c.dao.GetBasicDataInterval(nBasic / maxIntervalNum); err != nil {
-			return err
+			return fmt.Errorf("GetBasicDataInterval failed, err: %v", err)
 		}
 	}
 	front.Basic = make([]model.BasicDataStructFront, len(basicIntervalList))
@@ -85,7 +91,7 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 		d := basicIntervalList[i].Down()
 		rBasicI, err := utils.GetBasicDataStructFront(d)
 		if err != nil {
-			return err
+			return fmt.Errorf("GetBasicDataStructFront failed, err: %v", err)
 		}
 		front.Basic[i] = *rBasicI
 	}
@@ -95,11 +101,11 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	var seniorIntervalList []dao.SeniorData
 	if nSenior < maxIntervalNum {
 		if seniorIntervalList, err = c.dao.GetSeniorDataAll(); err != nil {
-			return err
+			return fmt.Errorf("GetSeniorDataAll failed, err: %v", err)
 		}
 	} else {
 		if seniorIntervalList, err = c.dao.GetSeniorDataInterval(nSenior / maxIntervalNum); err != nil {
-			return err
+			return fmt.Errorf("GetSeniorDataInterval failed, err: %v", err)
 		}
 	}
 	front.Senior = make([]model.SeniorDataStructFront, 0)
@@ -114,14 +120,14 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	basic1DayBond := int64(rawLatestBasic.BlockTimeStamp - config.DAY1)
 	basic1DayList, err := c.getBasicSamplingData(basic1DayBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getBasicSamplingData failed, err: %v", err)
 	}
 	front.Basic1Day = basic1DayList
 
 	senior1DayBond := int64(rawLatestSenior.BlockTimeStamp - config.DAY1)
 	senior1DayList, err := c.getSeniorSamplingData(senior1DayBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getSeniorSamplingData failed, err: %v", err)
 	}
 	front.Senior1Day = senior1DayList
 
@@ -129,14 +135,14 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	basic7DayBond := int64(rawLatestBasic.BlockTimeStamp - config.DAY7)
 	basic7DayList, err := c.getBasicSamplingData(basic7DayBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getBasicSamplingData failed, err: %v", err)
 	}
 	front.Basic7Day = basic7DayList
 
 	senior7DayBond := int64(rawLatestSenior.BlockTimeStamp - config.DAY7)
 	senior7DayList, err := c.getSeniorSamplingData(senior7DayBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getSeniorSamplingData failed, err: %v", err)
 	}
 	front.Senior7Day = senior7DayList
 
@@ -144,14 +150,14 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	basic1MonthBond := int64(rawLatestBasic.BlockTimeStamp - config.MONTH)
 	basic1MonthList, err := c.getBasicSamplingData(basic1MonthBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getBasicSamplingData failed, err: %v", err)
 	}
 	front.Basic1Month = basic1MonthList
 
 	senior1MonthBond := int64(rawLatestSenior.BlockTimeStamp - config.MONTH)
 	senior1MonthList, err := c.getSeniorSamplingData(senior1MonthBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getSeniorSamplingData failed, err: %v", err)
 	}
 	front.Senior1Month = senior1MonthList
 
@@ -159,14 +165,14 @@ func (c *CacheData) FetchAndSaveBasicSeniorData() error {
 	basic3MonthBond := int64(rawLatestBasic.BlockTimeStamp - config.MONTH3)
 	basic3MonthList, err := c.getBasicSamplingData(basic3MonthBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getBasicSamplingData failed, err: %v", err)
 	}
 	front.Basic3Month = basic3MonthList
 
 	senior3MonthBond := int64(rawLatestSenior.BlockTimeStamp - config.MONTH3)
 	senior3MonthList, err := c.getSeniorSamplingData(senior3MonthBond, maxIntervalNum)
 	if err != nil {
-		return err
+		return fmt.Errorf("getSeniorSamplingData failed, err: %v", err)
 	}
 	front.Senior3Month = senior3MonthList
 

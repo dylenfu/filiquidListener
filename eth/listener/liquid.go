@@ -1,4 +1,4 @@
-package eth
+package listener
 
 import (
 	"github.com/ethereum/go-ethereum/core/types"
@@ -6,7 +6,7 @@ import (
 	"github.com/filiquid/listener/utils"
 )
 
-func (s *EClient) handleLiquidEvent(name string, vlog types.Log) (any, error) {
+func (s *Listener) handleLiquidEvent(name string, vlog types.Log) (any, error) {
 	switch name {
 	case eventDeposit:
 		raw, err := s.liquidFilter.ParseDeposit(vlog)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/filiquid/listener/eth/abi/fetcher"
+	"github.com/filiquid/listener/eth/abi/data"
 	"github.com/filiquid/listener/model"
 )
 
@@ -65,9 +65,9 @@ type BasicData struct {
 	MaxExistingBorrows    string
 	MinBorrowAmount       string
 	MinDepositAmount      string
-	N                     string
-	NInterest             string
-	NStake                string
+	//N                     string
+	NInterest string
+	NStake    string
 }
 
 func (b *BasicData) Up(basicData *struct {
@@ -75,11 +75,11 @@ func (b *BasicData) Up(basicData *struct {
 	BlockTimeStamp             *big.Int
 	FitTotalSupply             *big.Int
 	FigTotalSupply             *big.Int
-	FilLiquidInfo              fetcher.FILLiquidInterfaceFILLiquidInfo
-	FilStakeInfo               fetcher.FILStakeFILStakeInfo
-	GovernanceInfo             fetcher.GovernanceGovernanceInfo
-	FiLLiquidGovernanceFactors fetcher.DataFetcherFiLLiquidGovernanceFactors
-	FiLStakeGovernanceFactors  fetcher.DataFetcherFiLStakeGovernanceFactors
+	FilLiquidInfo              data.FILLiquidInterfaceFILLiquidInfo
+	FitStakeInfo               data.FITStakeFITStakeInfo
+	GovernanceInfo             data.GovernanceGovernanceInfo
+	FiLLiquidGovernanceFactors data.DataFetcherFiLLiquidGovernanceFactors
+	FitStakeGovernanceFactors  data.DataFetcherFITStakeGovernanceFactors
 }) *BasicData {
 	b.BlockHeight = basicData.BlockHeight.Uint64()
 	b.BlockTimeStamp = basicData.BlockTimeStamp.Uint64()
@@ -107,13 +107,13 @@ func (b *BasicData) Up(basicData *struct {
 	b.CollateralizedMiner = basicData.FilLiquidInfo.CollateralizedMiner.String()
 	b.MinerWithBorrows = basicData.FilLiquidInfo.MinerWithBorrows.String()
 	b.RateBase = basicData.FilLiquidInfo.RateBase.String()
-	b.AccumulatedStake = basicData.FilStakeInfo.AccumulatedStake.String()
-	b.AccumulatedStakeDuration = basicData.FilStakeInfo.AccumulatedStakeDuration.String()
-	b.AccumulatedInterestMint = basicData.FilStakeInfo.AccumulatedInterestMint.String()
-	b.AccumulatedStakeMint = basicData.FilStakeInfo.AccumulatedStakeMint.String()
-	b.AccumulatedWithdrawn = basicData.FilStakeInfo.AccumulatedWithdrawn.String()
-	b.NextStakeID = basicData.FilStakeInfo.NextStakeID.String()
-	b.ReleasedFigStake = basicData.FilStakeInfo.ReleasedFigStake.String()
+	b.AccumulatedStake = basicData.FitStakeInfo.AccumulatedStake.String()
+	b.AccumulatedStakeDuration = basicData.FitStakeInfo.AccumulatedStakeDuration.String()
+	b.AccumulatedInterestMint = basicData.FitStakeInfo.AccumulatedInterestMint.String()
+	b.AccumulatedStakeMint = basicData.FitStakeInfo.AccumulatedStakeMint.String()
+	b.AccumulatedWithdrawn = basicData.FitStakeInfo.AccumulatedWithdrawn.String()
+	b.NextStakeID = basicData.FitStakeInfo.NextStakeID.String()
+	b.ReleasedFigStake = basicData.FitStakeInfo.ReleasedFIGStake.String()
 	b.Bonders = basicData.GovernanceInfo.Bonders.String()
 	b.TotalBondedAmount = basicData.GovernanceInfo.TotalBondedAmount.String()
 	b.FirstActiveProposalId = basicData.GovernanceInfo.FirstActiveProposalId.String()
@@ -132,9 +132,9 @@ func (b *BasicData) Up(basicData *struct {
 	b.MaxExistingBorrows = basicData.FiLLiquidGovernanceFactors.MaxExistingBorrows.String()
 	b.MinBorrowAmount = basicData.FiLLiquidGovernanceFactors.MinBorrowAmount.String()
 	b.MinDepositAmount = basicData.FiLLiquidGovernanceFactors.MinDepositAmount.String()
-	b.N = basicData.FiLLiquidGovernanceFactors.N.String()
-	b.NInterest = basicData.FiLStakeGovernanceFactors.NInterest.String()
-	b.NStake = basicData.FiLStakeGovernanceFactors.NStake.String()
+	//b.N = basicData.FiLLiquidGovernanceFactors.N.String()
+	b.NInterest = basicData.FitStakeGovernanceFactors.NInterest.String()
+	b.NStake = basicData.FitStakeGovernanceFactors.NStake.String()
 
 	return b
 }
@@ -193,7 +193,7 @@ func (b *BasicData) Down() *model.BasicDataStruct {
 	d.MaxExistingBorrows = b.MaxExistingBorrows
 	d.MinBorrowAmount = b.MinBorrowAmount
 	d.MinDepositAmount = b.MinDepositAmount
-	d.N = b.N
+	//d.N = b.N
 	d.NInterest = b.NInterest
 	d.NStake = b.NStake
 
@@ -206,7 +206,7 @@ func (s *Dao) InsertBasic(data *BasicData) error {
 
 func (s *Dao) GetLatestBlockHeight() (uint64, error) {
 	var height uint64
-	if err := s.db.Model(&BasicData{}).Order("block_height desc").Select("block_height").Limit(1).Scan(&height).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Order("block_height desc").Select("block_height").First(&height).Error; err != nil {
 		return 0, err
 	}
 	return height, nil
@@ -222,7 +222,8 @@ func (s *Dao) GetBasicDataCount() (int64, error) {
 
 func (s *Dao) GetLatestBasicData() (*BasicData, error) {
 	data := new(BasicData)
-	if err := s.db.Model(&BasicData{}).Order("block_height desc").Limit(1).Scan(data).Error; err != nil {
+
+	if err := s.db.Model(&BasicData{}).Order("block_height desc").First(data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil
@@ -256,7 +257,7 @@ func (s *Dao) GetBasicDataLowerTimeCount(lowerBond int64) (int64, error) {
 
 func (s *Dao) GetBasicDataLowerTimeList(lowerBond int64) ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Select("*").Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Scan(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Select("*").Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil

@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrNoRecord = gorm.ErrRecordNotFound
+
 type Dao struct {
 	db *gorm.DB
 }

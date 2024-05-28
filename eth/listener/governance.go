@@ -1,4 +1,4 @@
-package eth
+package listener
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/filiquid/listener/utils"
 )
 
-func (s *EClient) handleGovernanceEvent(name string, vlog types.Log) (any, error) {
+func (s *Listener) handleGovernanceEvent(name string, vlog types.Log) (any, error) {
 	switch name {
 	case eventProposed:
 		raw, err := s.govFilter.ParseProposed(vlog)

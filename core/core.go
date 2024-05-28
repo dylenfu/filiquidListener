@@ -44,38 +44,9 @@ func (s *Listener) Migrate() {
 	s.dao.Migrate()
 }
 
-func (s *Listener) Run(forceHeight uint64) {
-	s.prepare()
-
-	if err := s.cache.FetchAndSaveBasicCache(); err != nil {
-		log.Fatal(err)
-	}
-	if err := s.eth.FetchAndSaveFamilies(); err != nil {
-		log.Fatal(err)
-	}
-	if forceHeight > 0 {
-		s.eth.SetForceHeight(forceHeight)
-	}
-
+func (s *Listener) Run(listenerForceHeight, fetcherForceHeight uint64) {
 	go s.rpc.ServerThread()
-	go s.eth.FetchandSaveDataLoop()
-}
-
-func (s *Listener) prepare() {
-	lastHeight, err := s.dao.GetLastHeight()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Last height: %v\r\n", lastHeight)
-
-	currentHeight, err := s.eth.GetCurrentHeight()
-	if err != nil {
-		log.Fatalf("Get current height failed, err: %v", err)
-	}
-	log.Printf("current height %v", currentHeight)
-
-	s.cache.SetLastHeight(lastHeight)
-	s.cache.SetCurrentHeight(currentHeight)
+	go s.eth.Run(listenerForceHeight, fetcherForceHeight)
 }
 
 func (s *Listener) Close() {
