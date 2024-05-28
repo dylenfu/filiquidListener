@@ -9,7 +9,7 @@ import (
 )
 
 type BasicData struct {
-	BlockHeight    uint64 `gorm:"primaryKey"`
+	BlockHeight    uint64 `gorm:"uniqueIndex"`
 	BlockTimeStamp uint64
 
 	FitTotalSupply    string
