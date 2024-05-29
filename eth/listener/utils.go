@@ -11,10 +11,7 @@ import (
 	"github.com/filiquid/listener/model"
 )
 
-func (s *Listener) GetCurrentHeight() (uint64, error) {
-	return s.client.BlockNumber(context.Background())
-}
-
+// todo:(repeat fetch)
 func (s *Listener) getLogs(start, end uint64, addr common.Address) []types.Log {
 	query := setQuery(start, end, addr)
 	for {

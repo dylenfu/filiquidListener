@@ -138,7 +138,7 @@ func (s *Listener) IterateOnChainEvents(forceHeight uint64) {
 	}
 	log.Printf("Last height: %v\r\n", lastHeight)
 
-	currentHeight, err := s.GetCurrentHeight()
+	currentHeight, err := s.client.BlockNumber(context.Background())
 	if err != nil {
 		log.Fatalf("Get current height failed, err: %v", err)
 	}

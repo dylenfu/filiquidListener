@@ -2,8 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"io"
-	"net/http"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/filiquid/listener/config"
@@ -32,41 +30,6 @@ func Min(a, b int) int {
 	} else {
 		return b
 	}
-}
-
-// func ToJson(data any) []byte {
-// 	jsonData, err := json.Marshal(data)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	return jsonData
-// }
-
-// func Min(i, j int) int {
-// 	if i < j {
-// 		return i
-// 	} else {
-// 		return j
-// 	}
-// }
-
-func GetUsers(url string) ([]common.Address, error) {
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]common.Address, 0)
-
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-	return result, nil
 }
 
 func Keccak256Hash(s1, s2 string) common.Hash {

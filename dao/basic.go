@@ -338,7 +338,7 @@ func (s *Dao) GetLatestBasicData() (*BasicData, error) {
 
 func (s *Dao) GetBasicDataAll() ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Find(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Order("block_height asc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
@@ -351,7 +351,7 @@ func (s *Dao) GetBasicDataInterval(interval, limit int64) ([]BasicData, error) {
 		return nil, err
 	}
 
-	return list, nil
+	return reverseBasic(list), nil
 }
 
 func (s *Dao) GetBasicDataLowerTimeCount(lowerBond int64) (int64, error) {
@@ -364,7 +364,7 @@ func (s *Dao) GetBasicDataLowerTimeCount(lowerBond int64) (int64, error) {
 
 func (s *Dao) GetBasicDataLowerTimeList(lowerBond int64) ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ?", lowerBond).Order("block_height desc").Find(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ?", lowerBond).Order("block_height asc").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
@@ -372,8 +372,19 @@ func (s *Dao) GetBasicDataLowerTimeList(lowerBond int64) ([]BasicData, error) {
 
 func (s *Dao) GetBasicDataLowerTimeIntervalList(lowerBond, interval, limit int64) ([]BasicData, error) {
 	var list []BasicData
-	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height asc").Limit(int(limit)).Find(&list).Error; err != nil {
+	if err := s.db.Model(&BasicData{}).Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height desc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
-	return list, nil
+	return reverseBasic(list), nil
+}
+
+func reverseBasic(list []BasicData) []BasicData {
+	n := len(list)
+	if n < 2 {
+		return list
+	}
+	for i := 0; i < n/2; i++ {
+		list[i], list[n-1-i] = list[n-1-i], list[i]
+	}
+	return list
 }

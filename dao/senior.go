@@ -106,7 +106,7 @@ func (s *Dao) GetSeniorDataInterval(interval, limit int64) ([]SeniorData, error)
 		return nil, err
 	}
 
-	return list, nil
+	return reverseSenior(list), nil
 }
 
 func (s *Dao) GetSeniorDataLowerTimeCount(lowerBond int64) (int64, error) {
@@ -130,5 +130,16 @@ func (s *Dao) GetSeniorDataLowerTimeIntervalList(lowerBond, interval, limit int6
 	if err := s.db.Model(&SeniorData{}).Where("block_time_stamp >= ? && block_height % ? = 0", lowerBond, interval).Order("block_height desc").Limit(int(limit)).Find(&list).Error; err != nil {
 		return nil, err
 	}
-	return list, nil
+	return reverseSenior(list), nil
+}
+
+func reverseSenior(list []SeniorData) []SeniorData {
+	n := len(list)
+	if n < 2 {
+		return list
+	}
+	for i := 0; i < n/2; i++ {
+		list[i], list[n-1-i] = list[n-1-i], list[i]
+	}
+	return list
 }
